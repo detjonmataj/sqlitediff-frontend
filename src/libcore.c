@@ -28,12 +28,12 @@ typedef struct {
     size_t capacity;
 } DynamicArray;
 
-enum SqldiffOptions{
+typedef enum {
     SUMMARY = 0,
     TABLE,
     PRIMARY_KEY,
     TRANSACTION
-};
+} SqldiffOption;
 
 typedef struct {
     char *sqldiff_output;
@@ -41,6 +41,7 @@ typedef struct {
     char *destination_db_path;
     char **destinationBuffer;
     GuiWindowFileDialogState fileDialogState;
+    SqldiffOption sqldiff_option;
 } State;
 
 State *state = NULL;
@@ -91,11 +92,13 @@ char* get_sqldiff_output(void) {
     // TODO: Fix: Command Injection
     const char *base_command = "sqldiff ";
     size_t total_length = strlen(base_command) + strlen(state->source_db_path) + strlen(state->destination_db_path) + 2 + 1; // +2 for spaces, +1 for null terminator
+
     char *command = (char *)malloc(total_length * sizeof(char));
     strcpy(command, base_command);
     strcat(command, state->source_db_path);
     strcat(command, " ");
     strcat(command, state->destination_db_path);
+
     FILE *stdout_stream = popen(command, "r");
 
     if(stdout_stream == NULL) {
